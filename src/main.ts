@@ -39,9 +39,9 @@ async function setToolVersions(): Promise<Boolean> {
     await fs.promises.writeFile('.tool-versions', toolVersions, {
       encoding: 'utf8'
     })
-    return true;
+    return true
   }
-  return false;
+  return false
 }
 
 function getOS(): string {
