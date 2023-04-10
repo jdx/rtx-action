@@ -50,7 +50,7 @@ async function run() {
 exports.run = run;
 async function restoreRTXCache() {
     const cachePath = (0, utils_1.rtxDir)();
-    const fileHash = await glob.hashFiles('**/.tool-versions');
+    const fileHash = await glob.hashFiles(`**/.tool-versions\n**/.rtx.toml`);
     const primaryKey = `rtx-tools-${getOS()}-${os.arch()}-${fileHash}`;
     core.saveState('PRIMARY_KEY', primaryKey);
     const cacheKey = await cache.restoreCache([cachePath], primaryKey);

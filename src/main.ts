@@ -18,7 +18,7 @@ async function run(): Promise<void> {
 
 async function restoreRTXCache(): Promise<void> {
   const cachePath = rtxDir()
-  const fileHash = await glob.hashFiles('**/.tool-versions')
+  const fileHash = await glob.hashFiles(`**/.tool-versions\n**/.rtx.toml`)
   const primaryKey = `rtx-tools-${getOS()}-${os.arch()}-${fileHash}`
 
   core.saveState('PRIMARY_KEY', primaryKey)
