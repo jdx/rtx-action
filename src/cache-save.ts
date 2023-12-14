@@ -13,9 +13,7 @@ export async function run(): Promise<void> {
 }
 
 async function cacheRTXTools(): Promise<void> {
-  const skipCache = core.getState('CACHE')
-
-  if (skipCache) {
+  if (!core.getState('CACHE')) {
     core.info('Skipping saving cache')
     return
   }

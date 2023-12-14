@@ -82935,10 +82935,8 @@ async function run() {
         await setRtxToml();
         if (core.getBooleanInput('cache')) {
             await restoreRTXCache();
-            core.saveState('CACHE', false);
         }
         else {
-            core.saveState('CACHE', true);
             core.setOutput('cache-hit', false);
         }
         const version = core.getInput('version');
@@ -82974,7 +82972,9 @@ async function restoreRTXCache() {
     core.startGroup('Restoring rtx cache');
     const cachePath = (0, utils_1.rtxDir)();
     const fileHash = await glob.hashFiles(`**/.tool-versions\n**/.rtx.toml`);
-    const primaryKey = `rtx-tools-${getOS()}-${os.arch()}-${fileHash}`;
+    const prefix = core.getInput('cache_key_prefix', { required: true });
+    const primaryKey = `${prefix}-${getOS()}-${os.arch()}-${fileHash}`;
+    core.saveState('CACHE', true);
     core.saveState('PRIMARY_KEY', primaryKey);
     core.saveState('RTX_DIR', cachePath);
     const cacheKey = await cache.restoreCache([cachePath], primaryKey);

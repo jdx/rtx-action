@@ -14,9 +14,7 @@ async function run(): Promise<void> {
 
     if (core.getBooleanInput('cache')) {
       await restoreRTXCache()
-      core.saveState('CACHE', false)
     } else {
-      core.saveState('CACHE', true)
       core.setOutput('cache-hit', false)
     }
 
@@ -53,8 +51,10 @@ async function restoreRTXCache(): Promise<void> {
   core.startGroup('Restoring rtx cache')
   const cachePath = rtxDir()
   const fileHash = await glob.hashFiles(`**/.tool-versions\n**/.rtx.toml`)
-  const primaryKey = `rtx-tools-${getOS()}-${os.arch()}-${fileHash}`
+  const prefix = core.getInput('cache_key_prefix', {required: true})
+  const primaryKey = `${prefix}-${getOS()}-${os.arch()}-${fileHash}`
 
+  core.saveState('CACHE', true)
   core.saveState('PRIMARY_KEY', primaryKey)
   core.saveState('RTX_DIR', cachePath)
 
