@@ -76,20 +76,16 @@ async function setupRTX(version: string | undefined): Promise<void> {
 async function setToolVersions(): Promise<boolean> {
   const toolVersions = core.getInput('tool_versions', { required: false })
   if (toolVersions) {
-    await fs.promises.writeFile('.tool-versions', toolVersions, {
-      encoding: 'utf8'
-    })
+    await writeFile('.tool-versions', toolVersions)
     return true
   }
   return false
 }
 
 async function setRtxToml(): Promise<boolean> {
-  const toolVersions = core.getInput('rtx_toml', { required: false })
-  if (toolVersions) {
-    await fs.promises.writeFile('.rtx.toml', toolVersions, {
-      encoding: 'utf8'
-    })
+  const toml = core.getInput('rtx_toml', { required: false })
+  if (toml) {
+    await writeFile('.rtx.toml', toml)
     return true
   }
   return false
@@ -114,6 +110,9 @@ async function getBinPaths(): Promise<string[]> {
   const output = await exec.getExecOutput('rtx', ['bin-paths'])
   return output.stdout.split('\n')
 }
+
+const writeFile = async (p: fs.PathLike, body: string): Promise<void> =>
+  fs.promises.writeFile(p, body, { encoding: 'utf8' })
 
 if (require.main === module) {
   try {

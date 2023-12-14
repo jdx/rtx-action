@@ -82988,19 +82988,15 @@ async function setupRTX(version) {
 async function setToolVersions() {
     const toolVersions = core.getInput('tool_versions', { required: false });
     if (toolVersions) {
-        await fs.promises.writeFile('.tool-versions', toolVersions, {
-            encoding: 'utf8'
-        });
+        await writeFile('.tool-versions', toolVersions);
         return true;
     }
     return false;
 }
 async function setRtxToml() {
-    const toolVersions = core.getInput('rtx_toml', { required: false });
-    if (toolVersions) {
-        await fs.promises.writeFile('.rtx.toml', toolVersions, {
-            encoding: 'utf8'
-        });
+    const toml = core.getInput('rtx_toml', { required: false });
+    if (toml) {
+        await writeFile('.rtx.toml', toml);
         return true;
     }
     return false;
@@ -83022,6 +83018,7 @@ async function getBinPaths() {
     const output = await exec.getExecOutput('rtx', ['bin-paths']);
     return output.stdout.split('\n');
 }
+const writeFile = async (p, body) => fs.promises.writeFile(p, body, { encoding: 'utf8' });
 if (false) {}
 
 
