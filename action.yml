@@ -36,7 +36,7 @@ inputs:
     required: false
     default: "true"
     description: if false, action will not write to cache
-  cache_prefix_key:
+  cache_key_prefix:
     required: false
     default: "rtx-v0"
     description: The prefix key to use for the cache, change this to invalidate the cache
