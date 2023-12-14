@@ -82972,7 +82972,7 @@ async function restoreRTXCache() {
     core.startGroup('Restoring rtx cache');
     const cachePath = (0, utils_1.rtxDir)();
     const fileHash = await glob.hashFiles(`**/.tool-versions\n**/.rtx.toml`);
-    const prefix = core.getInput('cache_key_prefix') ?? 'rtx-v0';
+    const prefix = core.getInput('cache_key_prefix') || 'rtx-v0';
     const primaryKey = `${prefix}-${getOS()}-${os.arch()}-${fileHash}`;
     core.saveState('CACHE', core.getBooleanInput('cache_save') ?? true);
     core.saveState('PRIMARY_KEY', primaryKey);
@@ -83025,7 +83025,7 @@ function getOS() {
 const testRTX = async () => rtx(['--version']);
 const rtxInstall = async () => rtx(['install']);
 const rtx = async (args) => core.group(`Running rtx ${args.join(' ')}`, async () => {
-    const cwd = core.getInput('install_dir') ?? process.cwd();
+    const cwd = core.getInput('install_dir') || process.cwd();
     return exec.exec('rtx', args, { cwd });
 });
 const writeFile = async (p, body) => core.group(`Writing ${p}`, async () => {

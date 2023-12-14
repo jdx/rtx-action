@@ -51,7 +51,7 @@ async function restoreRTXCache(): Promise<void> {
   core.startGroup('Restoring rtx cache')
   const cachePath = rtxDir()
   const fileHash = await glob.hashFiles(`**/.tool-versions\n**/.rtx.toml`)
-  const prefix = core.getInput('cache_key_prefix') ?? 'rtx-v0'
+  const prefix = core.getInput('cache_key_prefix') || 'rtx-v0'
   const primaryKey = `${prefix}-${getOS()}-${os.arch()}-${fileHash}`
 
   core.saveState('CACHE', core.getBooleanInput('cache_save') ?? true)
@@ -114,7 +114,7 @@ const testRTX = async (): Promise<number> => rtx(['--version'])
 const rtxInstall = async (): Promise<number> => rtx(['install'])
 const rtx = async (args: string[]): Promise<number> =>
   core.group(`Running rtx ${args.join(' ')}`, async () => {
-    const cwd = core.getInput('install_dir') ?? process.cwd()
+    const cwd = core.getInput('install_dir') || process.cwd()
     return exec.exec('rtx', args, { cwd })
   })
 
