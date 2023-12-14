@@ -9,6 +9,7 @@ import { rtxDir } from './utils'
 
 async function run(): Promise<void> {
   await setToolVersions()
+  await setRtxToml()
 
   if (core.getBooleanInput('cache')) {
     await restoreRTXCache()
@@ -76,6 +77,17 @@ async function setToolVersions(): Promise<boolean> {
   const toolVersions = core.getInput('tool_versions', { required: false })
   if (toolVersions) {
     await fs.promises.writeFile('.tool-versions', toolVersions, {
+      encoding: 'utf8'
+    })
+    return true
+  }
+  return false
+}
+
+async function setRtxToml(): Promise<boolean> {
+  const toolVersions = core.getInput('rtx_toml', { required: false })
+  if (toolVersions) {
+    await fs.promises.writeFile('.rtx.toml', toolVersions, {
       encoding: 'utf8'
     })
     return true

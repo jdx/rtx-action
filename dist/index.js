@@ -82932,6 +82932,7 @@ const path = __importStar(__nccwpck_require__(1017));
 const utils_1 = __nccwpck_require__(1314);
 async function run() {
     await setToolVersions();
+    await setRtxToml();
     if (core.getBooleanInput('cache')) {
         await restoreRTXCache();
         core.saveState('CACHE', false);
@@ -82988,6 +82989,16 @@ async function setToolVersions() {
     const toolVersions = core.getInput('tool_versions', { required: false });
     if (toolVersions) {
         await fs.promises.writeFile('.tool-versions', toolVersions, {
+            encoding: 'utf8'
+        });
+        return true;
+    }
+    return false;
+}
+async function setRtxToml() {
+    const toolVersions = core.getInput('rtx_toml', { required: false });
+    if (toolVersions) {
+        await fs.promises.writeFile('.rtx.toml', toolVersions, {
             encoding: 'utf8'
         });
         return true;
