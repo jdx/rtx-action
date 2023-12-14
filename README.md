@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: jdx/rtx-action@v1
         with:
+          version: 2023.12.0 # optional, defaults to latest
           tool_versions: |
             shellcheck 0.9.0
       - run: shellcheck scripts/*.sh

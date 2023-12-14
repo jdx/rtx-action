@@ -40,3 +40,9 @@ jobs:
       - run: rtx exec -- node --version
       - run: which node
       - run: node -v
+  specific_version:
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: ./
+        with:
+          version: 2023.12.23
