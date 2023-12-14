@@ -54,7 +54,7 @@ async function restoreRTXCache(): Promise<void> {
   const prefix = core.getInput('cache_key_prefix') ?? 'rtx-v0'
   const primaryKey = `${prefix}-${getOS()}-${os.arch()}-${fileHash}`
 
-  core.saveState('CACHE', true)
+  core.saveState('CACHE', core.getBooleanInput('cache_save') ?? true)
   core.saveState('PRIMARY_KEY', primaryKey)
   core.saveState('RTX_DIR', cachePath)
 

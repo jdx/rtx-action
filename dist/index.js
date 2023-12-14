@@ -82974,7 +82974,7 @@ async function restoreRTXCache() {
     const fileHash = await glob.hashFiles(`**/.tool-versions\n**/.rtx.toml`);
     const prefix = core.getInput('cache_key_prefix') ?? 'rtx-v0';
     const primaryKey = `${prefix}-${getOS()}-${os.arch()}-${fileHash}`;
-    core.saveState('CACHE', true);
+    core.saveState('CACHE', core.getBooleanInput('cache_save') ?? true);
     core.saveState('PRIMARY_KEY', primaryKey);
     core.saveState('RTX_DIR', cachePath);
     const cacheKey = await cache.restoreCache([cachePath], primaryKey);
