@@ -82892,7 +82892,7 @@ module.exports.implForWrapper = function (wrapper) {
 
 /***/ }),
 
-/***/ 399:
+/***/ 6144:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -82921,7 +82921,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
@@ -82931,28 +82930,36 @@ const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
 const utils_1 = __nccwpck_require__(1314);
 async function run() {
-    await setToolVersions();
-    await setRtxToml();
-    if (core.getBooleanInput('cache')) {
-        await restoreRTXCache();
-        core.saveState('CACHE', false);
+    try {
+        await setToolVersions();
+        await setRtxToml();
+        if (core.getBooleanInput('cache')) {
+            await core.group('Restore rtx cache', async () => restoreRTXCache());
+            core.saveState('CACHE', false);
+        }
+        else {
+            core.saveState('CACHE', true);
+            core.setOutput('cache-hit', false);
+        }
+        const version = core.getInput('version');
+        const setupMessage = version ? `Setup rtx@${version}` : 'Setup rtx';
+        await core.group(setupMessage, async () => setupRTX(version));
+        await setEnvVars();
+        await core.group('Running rtx --version', async () => testRTX());
+        if (core.getBooleanInput('install')) {
+            await core.group('Running rtx install', async () => rtxInstall());
+        }
+        await setPaths();
     }
-    else {
-        core.saveState('CACHE', true);
-        core.setOutput('cache-hit', false);
+    catch (err) {
+        if (err instanceof Error)
+            core.setFailed(err.message);
+        else
+            throw err;
     }
-    const version = core.getInput('version');
-    await setupRTX(version);
-    await setEnvVars();
-    await exec.exec('rtx', ['--version']);
-    const install = core.getBooleanInput('install', { required: false });
-    if (install) {
-        await exec.exec('rtx', ['install']);
-    }
-    await setPaths();
 }
-exports.run = run;
 async function setEnvVars() {
+    core.startGroup('Setting env vars');
     if (!process.env['RTX_TRUSTED_CONFIG_PATHS']) {
         core.exportVariable('RTX_TRUSTED_CONFIG_PATHS', path.join(process.cwd(), '.rtx.toml'));
     }
@@ -82980,26 +82987,26 @@ async function setupRTX(version) {
         ? `https://rtx.jdx.dev/v${version}/rtx-v${version}-${getOS()}-${os.arch()}`
         : `https://rtx.jdx.dev/rtx-latest-${getOS()}-${os.arch()}`;
     await fs.promises.mkdir(rtxBinDir, { recursive: true });
-    await exec.exec('curl', [url, '--output', path.join(rtxBinDir, 'rtx')]);
+    await exec.exec('curl', [
+        '-fsSL',
+        url,
+        '--output',
+        path.join(rtxBinDir, 'rtx')
+    ]);
     await exec.exec('chmod', ['+x', path.join(rtxBinDir, 'rtx')]);
     core.addPath(rtxBinDir);
 }
-// returns true if tool_versions was set
 async function setToolVersions() {
-    const toolVersions = core.getInput('tool_versions', { required: false });
+    const toolVersions = core.getInput('tool_versions');
     if (toolVersions) {
         await writeFile('.tool-versions', toolVersions);
-        return true;
     }
-    return false;
 }
 async function setRtxToml() {
-    const toml = core.getInput('rtx_toml', { required: false });
+    const toml = core.getInput('rtx_toml');
     if (toml) {
         await writeFile('.rtx.toml', toml);
-        return true;
     }
-    return false;
 }
 function getOS() {
     switch (process.platform) {
@@ -83018,8 +83025,10 @@ async function getBinPaths() {
     const output = await exec.getExecOutput('rtx', ['bin-paths']);
     return output.stdout.split('\n');
 }
-const writeFile = async (p, body) => fs.promises.writeFile(p, body, { encoding: 'utf8' });
-if (false) {}
+const testRTX = async () => exec.exec('rtx', ['--version']);
+const rtxInstall = async () => exec.exec('rtx', ['install']);
+const writeFile = async (p, body) => core.group(`Writing ${p}`, async () => fs.promises.writeFile(p, body, { encoding: 'utf8' }));
+run();
 
 
 /***/ }),
@@ -83380,22 +83389,12 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
-"use strict";
-var exports = __webpack_exports__;
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-/**
- * The entrypoint for the action.
- */
-const main_1 = __nccwpck_require__(399);
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-(0, main_1.run)();
-
-})();
-
-module.exports = __webpack_exports__;
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __nccwpck_require__(6144);
+/******/ 	module.exports = __webpack_exports__;
+/******/ 	
 /******/ })()
 ;
