@@ -51,6 +51,7 @@ jobs:
       - uses: ./
         with:
           cache_save: ${{ github.ref_name == 'main' }}
+          cache_key_prefix: xxx
           version: 2023.12.23
           rtx_toml: |
             [tools]
