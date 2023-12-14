@@ -81350,7 +81350,7 @@ async function run() {
         await setToolVersions();
         await setRtxToml();
         if (core.getBooleanInput('cache')) {
-            await core.group('Restore rtx cache', async () => restoreRTXCache());
+            await restoreRTXCache();
             core.saveState('CACHE', false);
         }
         else {
@@ -81358,14 +81358,12 @@ async function run() {
             core.setOutput('cache-hit', false);
         }
         const version = core.getInput('version');
-        const setupMessage = version ? `Setup rtx@${version}` : 'Setup rtx';
-        await core.group(setupMessage, async () => setupRTX(version));
+        await setupRTX(version);
         await setEnvVars();
-        await core.group('Running rtx --version', async () => testRTX());
+        await testRTX();
         if (core.getBooleanInput('install')) {
-            await core.group('Running rtx install', async () => rtxInstall());
+            await rtxInstall();
         }
-        await setPaths();
     }
     catch (err) {
         if (err instanceof Error)
@@ -81376,14 +81374,20 @@ async function run() {
 }
 async function setEnvVars() {
     core.startGroup('Setting env vars');
-    if (!process.env['RTX_TRUSTED_CONFIG_PATHS']) {
-        core.exportVariable('RTX_TRUSTED_CONFIG_PATHS', path.join(process.cwd(), '.rtx.toml'));
-    }
-    if (!process.env['RTX_YES']) {
-        core.exportVariable('RTX_YES', '1');
-    }
+    const set = (k, v) => {
+        if (!process.env[k]) {
+            core.info(`Setting ${k}=${v}`);
+            core.exportVariable(k, v);
+        }
+    };
+    set('RTX_TRUSTED_CONFIG_PATHS', path.join(process.cwd(), '.rtx.toml'));
+    set('RTX_YES', '1');
+    const shimsDir = path.join((0, utils_1.rtxDir)(), 'shims');
+    core.info(`Adding ${shimsDir} to PATH`);
+    core.addPath(shimsDir);
 }
 async function restoreRTXCache() {
+    core.startGroup('Restoring rtx cache');
     const cachePath = (0, utils_1.rtxDir)();
     const fileHash = await glob.hashFiles(`**/.tool-versions\n**/.rtx.toml`);
     const primaryKey = `rtx-tools-${getOS()}-${os.arch()}-${fileHash}`;
@@ -81398,6 +81402,7 @@ async function restoreRTXCache() {
     core.info(`rtx cache restored from key: ${cacheKey}`);
 }
 async function setupRTX(version) {
+    core.startGroup(version ? `Setup rtx@${version}` : 'Setup rtx');
     const rtxBinDir = path.join((0, utils_1.rtxDir)(), 'bin');
     const url = version
         ? `https://rtx.jdx.dev/v${version}/rtx-v${version}-${getOS()}-${os.arch()}`
@@ -81432,18 +81437,12 @@ function getOS() {
             return process.platform;
     }
 }
-async function setPaths() {
-    for (const binPath of await getBinPaths()) {
-        core.addPath(binPath);
-    }
-}
-async function getBinPaths() {
-    const output = await exec.getExecOutput('rtx', ['bin-paths']);
-    return output.stdout.split('\n');
-}
-const testRTX = async () => exec.exec('rtx', ['--version']);
-const rtxInstall = async () => exec.exec('rtx', ['install']);
-const writeFile = async (p, body) => core.group(`Writing ${p}`, async () => fs.promises.writeFile(p, body, { encoding: 'utf8' }));
+const testRTX = async () => core.group('Running rtx --version', async () => exec.exec('rtx', ['--version']));
+const rtxInstall = async () => core.group('Running rtx --version', async () => exec.exec('rtx', ['install']));
+const writeFile = async (p, body) => core.group(`Writing ${p}`, async () => {
+    core.info(`Body:\n${body}`);
+    await fs.promises.writeFile(p, body, { encoding: 'utf8' });
+});
 run();
 
 
