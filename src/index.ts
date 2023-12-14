@@ -41,7 +41,7 @@ async function setEnvVars(): Promise<void> {
       core.exportVariable(k, v)
     }
   }
-  set('RTX_TRUSTED_CONFIG_PATHS', path.join(process.cwd(), '.rtx.toml'))
+  set('RTX_TRUSTED_CONFIG_PATHS', process.cwd())
   set('RTX_YES', '1')
 
   const shimsDir = path.join(rtxDir(), 'shims')
@@ -56,6 +56,7 @@ async function restoreRTXCache(): Promise<void> {
   const primaryKey = `rtx-tools-${getOS()}-${os.arch()}-${fileHash}`
 
   core.saveState('PRIMARY_KEY', primaryKey)
+  core.saveState('RTX_DIR', cachePath)
 
   const cacheKey = await cache.restoreCache([cachePath], primaryKey)
   core.setOutput('cache-hit', Boolean(cacheKey))
@@ -109,12 +110,14 @@ function getOS(): string {
   }
 }
 
-const testRTX = async (): Promise<number> =>
-  core.group('Running rtx --version', async () =>
-    exec.exec('rtx', ['--version'])
-  )
-const rtxInstall = async (): Promise<number> =>
-  core.group('Running rtx --version', async () => exec.exec('rtx', ['install']))
+const testRTX = async (): Promise<number> => rtx(['--version'])
+const rtxInstall = async (): Promise<number> => rtx(['install'])
+const rtx = async (args: string[]): Promise<number> =>
+  core.group(`Running rtx ${args.join(' ')}`, async () => {
+    const cwd = core.getInput('install_dir') ?? process.cwd()
+    return exec.exec('rtx', args, { cwd })
+  })
+
 const writeFile = async (p: fs.PathLike, body: string): Promise<void> =>
   core.group(`Writing ${p}`, async () => {
     core.info(`Body:\n${body}`)
