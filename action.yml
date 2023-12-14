@@ -34,7 +34,7 @@ inputs:
     description: if false, action will not automatically read or write to cache
   cache_prefix_key:
     required: false
-    default: "v0-rtx"
+    default: "rtx-v0"
     description: The prefix key to use for the cache, change this to invalidate the cache
   cache-save:
     required: false
