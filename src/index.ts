@@ -62,7 +62,7 @@ async function restoreRTXCache(): Promise<void> {
   core.setOutput('cache-hit', Boolean(cacheKey))
 
   if (!cacheKey) {
-    core.info(`rtx cache not found for ${getOS()}-${os.arch()} tool versions`)
+    core.info(`rtx cache not found for ${primaryKey}`)
     return
   }
 

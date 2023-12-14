@@ -82980,7 +82980,7 @@ async function restoreRTXCache() {
     const cacheKey = await cache.restoreCache([cachePath], primaryKey);
     core.setOutput('cache-hit', Boolean(cacheKey));
     if (!cacheKey) {
-        core.info(`rtx cache not found for ${getOS()}-${os.arch()} tool versions`);
+        core.info(`rtx cache not found for ${primaryKey}`);
         return;
     }
     core.saveState('CACHE_KEY', cacheKey);
